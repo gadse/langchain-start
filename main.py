@@ -8,14 +8,20 @@ import os
 
 import dotenv
 
+from agents import AlpacaLLM
+
 from langchain import PromptTemplate
+from langchain import hub
+from langchain.agents import Tool
+from langchain.agents import AgentExecutor
 from langchain.chains import LLMChain
 from langchain.chains import SimpleSequentialChain
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.chat_models import ChatOllama
 from langchain_community.llms import Ollama
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-
+from langchain_experimental.utilities import PythonREPL
 
 
 def greet():
@@ -101,6 +107,28 @@ def search(vector_store):
     return vector_store.similarity_search(query)
 
 
+# def create_agent():
+#     python_repl = PythonREPL()
+#     repl_tool = Tool(
+#         name="python_repl",
+#         description="A Python shell. Use this to execute python commands. Input should be a valid python command. If you want to see the output of a value, you should print it out with `print(...)`.",
+#         func=python_repl.run
+#     )
+#     agent_tools = [repl_tool]
+#
+#     instructions = """You are an agent designed to write and execute python code to answer questions.
+#     You have access to a python REPL, which you can use to execute python code.
+#     If you get an error, debug your code and try again.
+#     Only use the output of your code to answer the question.
+#     You might know the answer without running any code, but you should still run the code to get the answer.
+#     If it does not seem like you can write code to answer the question, just return "I don't know" as the answer.
+#     """
+#     base_prompt = hub.pull("langchain-ai/react-agent-template")
+#     prompt = base_prompt.partial(instructions=instructions)
+#     agent = create_(ChatOllama(temperature=0), agent_tools, prompt)
+#     return AgentExecutor(agent=agent, tools=agent_tools, verbose=True)
+
+
 if __name__ == "__main__":
     greet()
     pre_flight_checks()
@@ -111,6 +139,9 @@ if __name__ == "__main__":
     splitted = split(response)
     vector_store = store(splitted)
     print(search(vector_store))
+
+    # agent = create_agent()
+    # agent.invoke({"input": "What is the 10th fibonacci number?"})
 
     end = time.process_time()
     elapsed = str(round(end - start, 2))
